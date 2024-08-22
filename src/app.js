@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const routes = require("./routes/index");
 const rateLimiterMiddleWare = require('./middleware/rateLimit');
 
-// server.use(rateLimiterMiddleWare);
+server.use(rateLimiterMiddleWare);
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
