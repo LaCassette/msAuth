@@ -42,6 +42,7 @@ module.exports = class SecurityValidator {
             await authController.register({ username, email, password });
             return res.status(201).json({ message: "User successfully registered." });
         } catch (error) {
+            console.error("Error details:", error); 
             return res.status(500).json({ message: "An error occurred while registering the user." });
         }
     }

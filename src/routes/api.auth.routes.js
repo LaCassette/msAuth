@@ -16,8 +16,9 @@ router.post('/login', async (req, res, next) => {
 // Route pour l'inscription avec validation
 router.post('/register', async (req, res, next) => {
     try {
-        const { username, email, password } = req.body;
-        await securityValidator.checker(username, email, password, res);
+        // const { username, email, password } = req.body;
+        // await securityValidator.checker(username, email, password, res);
+        await authController.register(req, res);
     } catch (error) {
         next(error);  // Passer l'erreur au middleware d'erreur global
     }

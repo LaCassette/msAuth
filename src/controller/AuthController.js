@@ -1,9 +1,11 @@
 const bcrypt = require('bcrypt');
 const prisma = require('@prisma/client'); // Assurez-vous d'avoir installé Prisma
+const UserController = require('./UserController');
 
 module.exports = class AuthController {
     constructor() {
         this.prisma = new prisma.PrismaClient(); // Instance Prisma
+        this.userService = new UserController()
     }
 
     // Login method
@@ -38,32 +40,40 @@ module.exports = class AuthController {
         }
     }
 
-    // Register method
     async register(req, res) {
-        const { username, email, password, company_id } = req.body;
-
-        try {
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            // Create the user
-            const newUser = await this.prisma.user.create({
-                data: {
-                    username: username,
-                    email: email,
-                    password_hash: hashedPassword,
-                    company_id: company_id
+            try {
+                const { username, email, password } = req.body;
+    
+                // Vérifier si l'utilisateur existe déjà
+                const existingUser = await this.prisma.user.findUnique({
+                    where: {
+                        OR: [
+                            { username: username },
+                            { email: email }
+                        ]
+                    }
+                });
+    
+                if (existingUser) {
+                    return res.status(400).json({ message: 'User already exists' });
                 }
-            });
-
-            return res.status(201).json({ message: 'User registered successfully', user: newUser });
-
-        } catch (error) {
-            if (error.code === 'P2002') { // Unique constraint failed
-                return res.status(400).json({ error: 'Username or email already taken' });
+    
+                // Hacher le mot de passe
+                const password_hash = await bcrypt.hash(password, 10);
+    
+                // Créer un nouvel utilisateur
+                const newUser = await this.prisma.user.create({
+                    data: {
+                        username,
+                        email,
+                        password_hash,
+                    }
+                });
+    
+                return res.status(201).json({ message: 'User registered successfully', user: newUser });
+            } catch (error) {
+                return res.status(500).json({ message: 'Registration failed', error: error.message });
             }
-            return res.status(500).json({ error: 'Something went wrong', details: error.message });
-        }
     }
 
     // Check User Session method

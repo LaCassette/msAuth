@@ -7,6 +7,30 @@ module.exports = class UserController {
         this.prisma = prismaClient;
     }
 
+    // Méthode pour trouver un utilisateur par son nom d'utilisateur
+    async findUserByUsername(username) {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { username: username },
+            });
+            return user ? true : false;
+        } catch (error) {
+            throw new Error("Failed to find user by username.");
+        }
+    }
+
+    // Méthode pour trouver un utilisateur par son email
+    async findUserByEmail(email) {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { email: email },
+            });
+            return user ? true : false;
+        } catch (error) {
+            throw new Error("Failed to find user by email.");
+        }
+    }
+
     async getUserById(req, res) {
         try {
             const { id } = req.params;
